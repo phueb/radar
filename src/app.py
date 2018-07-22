@@ -35,7 +35,7 @@ else:
     app.config.from_object('dev_configs')
 
 if MOCK_DATA:
-    stream = io.open('mock.txt', 'rb')
+    stream = io.open('src/mock.txt', 'rb')
     url_suffix = 'mock_data'
 else:
     ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
@@ -155,7 +155,7 @@ def data():
             xy = convert(float(step), float(distance))
             x.append(xy[0])
             y.append(xy[1])
-    return jsonify(x=x[-1], y=y[-1])  # TODO must be one x, y pair
+    return jsonify(x=x[-1], y=y[-1])  # TODO must be one x, y pair?
 
 
 @app.route('/mock_data', methods=['POST'])
@@ -170,4 +170,4 @@ def mock_data():
     return jsonify({'x': [x], 'y': [y]})
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True, host='0.0.0.0')
+    app.run(port=5000)
