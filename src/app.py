@@ -13,15 +13,15 @@ MOCK_DATA = True
 SERIAL_URL = 'COM3'
 
 # data
+ROLLOVER = 6
 LINE_LENGTH = 6
 BAUD_RATE = 9600
 DISTANCE_UNITS = 'cm'
 NUM_STEPS = 32
 SENSOR_RANGE = [0, 200]
-MS_PER_STEP = 250  # smaller-> more frequent updates but risks breaking stream into too small chunks
+MS_PER_STEP = 500  # smaller-> more frequent updates but risks breaking stream into too small chunks
 
 # plot
-ROLLOVER = 6
 SIZE = 600
 PAD = 0.1
 SCATTER_RADIUS = 0.05
@@ -105,10 +105,10 @@ def make_plot():
                     color='#43ff00')
 
     # scatter
-    scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,  # TODO test on hostgator
-    # scatter_source = AjaxDataSource(data_url="http://localhost:5000/mock_data",
+    scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,
                                     polling_interval=MS_PER_STEP,
-                                    mode='replace')  # TODO test replace
+                                    max_size=ROLLOVER,
+                                    mode='append')  # TODO test replace
     scatter_source.data = {'x': [],
                            'y': []}
     p.scatter(x='x',
@@ -124,15 +124,9 @@ def make_plot():
 @app.route('/')
 def index():
     p = make_plot()
-    # return render_template("index.html", plot=p)
-
-    # TODO
-
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
-
     script, div = components(p, INLINE)
-
     return render_template('index.html',
                            plot_script=script,
                            plot_div=div,
@@ -154,7 +148,7 @@ def data():
             xy = convert(float(step), float(distance))
             x.append(xy[0])
             y.append(xy[1])
-    return jsonify(x=x[-1], y=y[-1])  # TODO must be one x, y pair?
+    return jsonify(x=x, y=y)
 
 
 @app.route('/mock_data', methods=['POST'])
@@ -166,7 +160,7 @@ def mock_data():
     print('line:', line, '\n')
     step, distance = line.strip('\n').split()
     x, y = convert(float(step), float(distance))
-    return jsonify({'x': [x], 'y': [y]})
+    return jsonify({'x': [x, x - 0.1], 'y': [y, y - 0.1]})  # multiple points work also
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5000, debug=True)
