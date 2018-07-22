@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import io
 import serial
 import math
@@ -28,7 +29,10 @@ LINE_WIDTH = 2
 NUM_LINES = 5
 
 app = Flask(__name__)
-app.config.from_pyfile('server_configs.py')
+if os.getenv('APP_MODE') == "PRODUCTION":
+    app.config.from_object('production_configs')
+else:
+    app.config.from_object('dev_configs')
 
 if MOCK_DATA:
     stream = io.open('mock.txt', 'rb')

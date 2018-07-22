@@ -3,6 +3,7 @@ flup==1.0.3
 gunicorn==19.7.1
 itsdangerous==0.24
 Jinja2==2.10
-Markdown==2.6.11
 Werkzeug==0.14.1
 WTForms==2.1
+pyserial==3.4
+bokeh==0.13
