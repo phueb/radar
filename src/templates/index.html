@@ -9,13 +9,17 @@
 </head>
 
 <body>
-<div>
     <h1>Arduino Radar</h1>
-    <h3>Hardware: Danny Huebner</h3>
-    <h3>Software: Philip Huebner</h3>
 
-    {{ plot_div | safe}}
-    {{ plot_script | safe}}
-</div>
+    <div>
+        Select Data Source to turn on radar
+        <form action="{{ url_for('radar', stream_name="mock") }}">
+            <input type="submit" value="mock" />
+        </form>
+        <form action="{{ url_for('radar', stream_name="com3") }}">
+            <input type="submit" value="com3" />
+        </form>
+
+    </div>
 </body>
 </html>

@@ -1,0 +1,19 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Arduino Radar</title>
+    {{ js_resources | safe}}
+    {{ css_resources | safe }}
+</head>
+
+<body>
+<div>
+    <h1>Arduino Radar</h1>
+    <h2>{{ request.stream_name }}</h2>
+
+    {{ plot_div | safe}}
+    {{ plot_script | safe}}
+</body>
+</html>

@@ -9,7 +9,8 @@ from bokeh.embed import components
 from bokeh.models.sources import AjaxDataSource, ColumnDataSource
 from bokeh.resources import INLINE
 
-MOCK_DATA = True  # TODO make html button
+
+MOCK_DATA = True
 SERIAL_URL = 'COM3'
 
 # data
@@ -34,15 +35,7 @@ if os.getenv('APP_MODE') == "PRODUCTION":
 else:
     app.config.from_object('dev_configs')
 
-if MOCK_DATA:
-    stream = io.open('src/mock.txt', 'rb')
-    url_suffix = 'mock_data'
-else:
-    ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
-    ser.flushInput()
-    stream = io.BufferedRWPair(ser, ser)
-    url_suffix = 'data'
-sio = io.TextIOWrapper(stream, line_buffering=True)
+sio = None
 
 
 def convert(st, dist):
@@ -53,7 +46,7 @@ def convert(st, dist):
     return result
 
 
-def make_plot():
+def make_plot(stream_name):
     def make_unit_poly_vertices(dist):
         x0, y0 = 0, 0
         theta = np.linspace(0, 2 * np.pi, NUM_STEPS + 1, endpoint=True)
@@ -105,7 +98,7 @@ def make_plot():
                     color='#43ff00')
 
     # scatter
-    scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,
+    scatter_source = AjaxDataSource(data_url=request.url_root + stream_name,
                                     polling_interval=MS_PER_STEP,
                                     max_size=ROLLOVER,
                                     mode='replace')  # TODO test replace
@@ -121,22 +114,39 @@ def make_plot():
     return p
 
 
+# ////////////////////////////////////////// views
+
+
 @app.route('/')
 def index():
-    p = make_plot()
+    return render_template('index.html')
+
+
+@app.route('/radar/<stream_name>')
+def radar(stream_name):
+    # stream
+    if stream_name == 'mock':
+        stream = io.open('src/mock.txt', 'rb')
+    elif stream_name == 'com3':
+        ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
+        ser.flushInput()
+        stream = io.BufferedRWPair(ser, ser)
+    global sio
+    sio = io.TextIOWrapper(stream, line_buffering=True)
+    # plot
+    p = make_plot(stream_name)
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
     script, div = components(p, INLINE)
-    return render_template('index.html',
+    return render_template('radar.html',
                            plot_script=script,
                            plot_div=div,
                            js_resources=js_resources,
-                           css_resources=css_resources
-                           )
+                           css_resources=css_resources)
 
 
-@app.route('/data', methods=['GET', 'POST'])
-def data():
+@app.route('/com3', methods=['POST'])
+def com3():
     buffer_size = ser.inWaiting()
     buffer = sio.read(buffer_size)
     x = []
@@ -150,8 +160,8 @@ def data():
     return jsonify(x=x, y=y)
 
 
-@app.route('/mock_data', methods=['POST'])
-def mock_data():
+@app.route('/mock', methods=['POST'])
+def mock():
     line = sio.readline()
     if not line:
         sio.seek(0)
