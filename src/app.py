@@ -36,6 +36,7 @@ else:
     app.config.from_object('dev_configs')
 
 sio = None
+ser = None
 
 
 def convert(st, dist):
@@ -124,6 +125,8 @@ def index():
 
 @app.route('/radar/<stream_name>')
 def radar(stream_name):
+    global sio
+    global ser
     # stream
     if stream_name == 'mock':
         stream = io.open('src/mock.txt', 'rb')
@@ -131,7 +134,6 @@ def radar(stream_name):
         ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
         ser.flushInput()
         stream = io.BufferedRWPair(ser, ser)
-    global sio
     sio = io.TextIOWrapper(stream, line_buffering=True)
     # plot
     p = make_plot(stream_name)
