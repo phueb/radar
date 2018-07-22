@@ -105,8 +105,8 @@ def make_plot():
                     color='#43ff00')
 
     # scatter
-    # scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,  # TODO test on hostgator
-    scatter_source = AjaxDataSource(data_url="http://localhost:5000/mock_data",
+    scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,  # TODO test on hostgator
+    # scatter_source = AjaxDataSource(data_url="http://localhost:5000/mock_data",
                                     polling_interval=MS_PER_STEP,
                                     mode='replace')  # TODO test replace
     scatter_source.data = {'x': [],
@@ -118,8 +118,7 @@ def make_plot():
               fill_color='#43ff00',
               radius=SCATTER_RADIUS)
 
-    # return components(p)
-    return p  # TODO
+    return p
 
 
 @app.route('/')
