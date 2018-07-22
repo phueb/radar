@@ -19,7 +19,7 @@ BAUD_RATE = 9600
 DISTANCE_UNITS = 'cm'
 NUM_STEPS = 32
 SENSOR_RANGE = [0, 200]
-MS_PER_STEP = 500  # smaller-> more frequent updates but risks breaking stream into too small chunks
+MS_PER_STEP = 1000  # smaller-> more frequent updates but risks breaking stream into too small chunks
 
 # plot
 SIZE = 600
