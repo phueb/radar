@@ -1,0 +1,9 @@
+webpack.config.js
+package.json
+package-lock.json
+*.pyc
+*.jsx
+/node_modules/*
+/js/*
+/.idea/*
+server_configs.py

@@ -1,0 +1,21 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Streaming Example</title>
+    {{ js_resources | safe}}
+    {{ css_resources | safe }}
+</head>
+
+<body>
+<div>
+    <h1>Arduino Radar</h1>
+    <h3>Hardware: Danny Huebner</h3>
+    <h3>Software: Philip Huebner</h3>
+
+    {{ plot_div | safe}}
+    {{ plot_script | safe}}
+</div>
+</body>
+</html>
