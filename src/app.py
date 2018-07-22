@@ -9,7 +9,7 @@ from bokeh.embed import components
 from bokeh.models.sources import AjaxDataSource, ColumnDataSource
 from bokeh.resources import INLINE
 
-MOCK_DATA = True
+MOCK_DATA = True  # TODO make html button
 SERIAL_URL = 'COM3'
 
 # data
@@ -108,7 +108,7 @@ def make_plot():
     scatter_source = AjaxDataSource(data_url=request.url_root + url_suffix,
                                     polling_interval=MS_PER_STEP,
                                     max_size=ROLLOVER,
-                                    mode='append')  # TODO test replace
+                                    mode='replace')  # TODO test replace
     scatter_source.data = {'x': [],
                            'y': []}
     p.scatter(x='x',
@@ -143,7 +143,6 @@ def data():
     y = []
     for line in buffer.split('\n'):
         if len(line) == LINE_LENGTH:
-            print(line)
             step, distance = line.strip('\n').split()
             xy = convert(float(step), float(distance))
             x.append(xy[0])
@@ -157,7 +156,6 @@ def mock_data():
     if not line:
         sio.seek(0)
         line = sio.readline()
-    print('line:', line, '\n')
     step, distance = line.strip('\n').split()
     x, y = convert(float(step), float(distance))
     return jsonify({'x': [x, x - 0.1], 'y': [y, y - 0.1]})  # multiple points work also
