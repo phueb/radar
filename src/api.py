@@ -6,7 +6,6 @@ from flask import Flask, jsonify
 from flask_cors import CORS, cross_origin
 
 
-MOCK_DATA = True
 SERIAL_URL = 'COM3'
 
 # data
@@ -50,7 +49,9 @@ def com3():
             xy = convert(float(step), float(distance))
             x.append(xy[0])
             y.append(xy[1])
+        if len(x) == NUM_STEPS:  # prevent reading from large buffer
             print('api:', x, y)
+            break
     return jsonify(x=x, y=y)
 
 if __name__ == '__main__':

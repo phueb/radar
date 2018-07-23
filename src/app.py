@@ -10,7 +10,7 @@ from bokeh.resources import INLINE
 
 
 SERIAL_URL = 'COM3'
-LOCAL_SERVICE_URL = ' http://arduinoradar.ngrok.io/'  # include trailing forward slash
+LOCAL_SERVICE_URL = ' https://arduinoradar.ngrok.io/'  # include trailing forward slash
 
 # data
 ROLLOVER = 6
