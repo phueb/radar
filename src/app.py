@@ -17,7 +17,6 @@ ROLLOVER = 6
 LINE_LENGTH = 6
 BAUD_RATE = 9600
 DISTANCE_UNITS = 'cm'
-NUM_STEPS = 32
 SENSOR_RANGE = [0, 200]
 MS_PER_STEP = 1000  # smaller-> more frequent updates but risks breaking stream into too small chunks
 
@@ -34,22 +33,11 @@ if os.getenv('APP_MODE') == "PRODUCTION":
 else:
     app.config.from_object('dev_configs')
 
-stream = io.open('src/mock.txt', 'rb')
-sio = io.TextIOWrapper(stream, line_buffering=True)
-
-
-def convert(st, dist):
-    deg = st / NUM_STEPS * 360
-    rad = math.radians(deg)
-    interp_dist = np.interp(dist, SENSOR_RANGE, [0, 1])
-    result = - np.sin(rad) * interp_dist, np.cos(rad) * interp_dist
-    return result
-
 
 def make_plot(data_url):
     def make_unit_poly_vertices(dist):
         x0, y0 = 0, 0
-        theta = np.linspace(0, 2 * np.pi, NUM_STEPS + 1, endpoint=True)
+        theta = np.linspace(0, 2 * np.pi, 101, endpoint=True)
         theta += np.pi / 2  # start zero at top
         result = [(dist * np.cos(t) + x0, dist * np.sin(t) + y0) for t in theta]
         return result
@@ -74,7 +62,7 @@ def make_plot(data_url):
     # concentric lines
     distances_to_line = np.linspace(0, 1, NUM_LINES, endpoint=True)
     for d in distances_to_line:
-        vertices = make_unit_poly_vertices(d)
+        vertices = make_unit_poly_vertices(d)  # TODO make circle instead
         line_x = [v[0] for v in vertices]
         line_y = [v[1] for v in vertices]
         line_source = ColumnDataSource({'x': line_x,
@@ -143,16 +131,6 @@ def radar(stream_name):
                            js_resources=js_resources,
                            css_resources=css_resources)
 
-
-@app.route('/mock', methods=['POST'])
-def mock():
-    line = sio.readline()
-    if not line:
-        sio.seek(0)
-        line = sio.readline()
-    step, distance = line.strip('\n').split()
-    x, y = convert(float(step), float(distance))
-    return jsonify({'x': [x, x - 0.1], 'y': [y, y - 0.1]})  # multiple points work also
 
 if __name__ == '__main__':
     app.run(port=80, debug=False, host='192.168.1.15')
