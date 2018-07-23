@@ -3,6 +3,7 @@ import io
 import serial
 import math
 from flask import Flask, jsonify
+from flask_cors import CORS, cross_origin
 
 
 MOCK_DATA = True
@@ -20,18 +21,20 @@ stream = io.BufferedRWPair(ser, ser)
 sio = io.TextIOWrapper(stream, line_buffering=True)
 
 app = Flask(__name__)
+app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app, resources={r"/foo": {"origins": "http://localhost:port"}})
 
 
-def convert(st, dist):
-    deg = st / NUM_STEPS * 360
-    rad = math.radians(deg)
-    interp_dist = np.interp(dist, SENSOR_RANGE, [0, 1])
-    result = - np.sin(rad) * interp_dist, np.cos(rad) * interp_dist
-    return result
-
-
-@app.route('/com3', methods=['POST', 'GET'])
+@app.route('/com3', methods=['POST'])
+@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def com3():
+    def convert(st, dist):
+        deg = st / NUM_STEPS * 360
+        rad = math.radians(deg)
+        interp_dist = np.interp(dist, SENSOR_RANGE, [0, 1])
+        result = - np.sin(rad) * interp_dist, np.cos(rad) * interp_dist
+        return result
+
     buffer_size = ser.inWaiting()
     buffer = sio.read(buffer_size)
     x = []

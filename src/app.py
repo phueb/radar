@@ -35,8 +35,8 @@ if os.getenv('APP_MODE') == "PRODUCTION":
 else:
     app.config.from_object('dev_configs')
 
-sio = None
-# ser = None
+stream = io.open('src/mock.txt', 'rb')
+sio = io.TextIOWrapper(stream, line_buffering=True)
 
 
 def convert(st, dist):
@@ -125,24 +125,14 @@ def index():
 
 @app.route('/radar/<stream_name>')
 def radar(stream_name):
-    global sio
-    # global ser
-    # stream
+    # data_url
     if stream_name == 'mock':
-        stream = io.open('src/mock.txt', 'rb')
-        sio = io.TextIOWrapper(stream, line_buffering=True)
         data_url = request.url_root + 'mock'
     elif stream_name == 'com3':
-        # ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
-        # ser.flushInput()
-        # stream = io.BufferedRWPair(ser, ser)
-        data_url = '192.168.1.15:5000/com3'  # TODO use port-forwarding
+        data_url = 'http://192.168.1.15:5000/com3'  # TODO use port-forwarding for heroku
     else:
         return 'Invalid stream_name'
     # plot
-
-    print('data_url')
-    print(data_url)
     p = make_plot(data_url)
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
@@ -152,21 +142,6 @@ def radar(stream_name):
                            plot_div=div,
                            js_resources=js_resources,
                            css_resources=css_resources)
-
-
-# @app.route('/com3', methods=['POST'])
-# def com3():
-#     buffer_size = ser.inWaiting()
-#     buffer = sio.read(buffer_size)
-#     x = []
-#     y = []
-#     for line in buffer.split('\n'):
-#         if len(line) == LINE_LENGTH:
-#             step, distance = line.strip('\n').split()
-#             xy = convert(float(step), float(distance))
-#             x.append(xy[0])
-#             y.append(xy[1])
-#     return jsonify(x=x, y=y)
 
 
 @app.route('/mock', methods=['POST'])
