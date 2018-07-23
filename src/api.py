@@ -25,7 +25,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/foo": {"origins": "http://localhost:port"}})
 
 
-@app.route('/com3', methods=['POST'])
+@app.route('/com3', methods=['POST', 'GET'])
 @cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
 def com3():
     def convert(st, dist):
