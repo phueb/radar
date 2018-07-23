@@ -20,7 +20,7 @@ BAUD_RATE = 9600
 DISTANCE_UNITS = 'cm'
 NUM_STEPS = 32
 SENSOR_RANGE = [0, 200]
-MS_PER_STEP = 1000  # smaller-> more frequent updates but risks breaking stream into too small chunks
+MS_PER_STEP = 300  # smaller-> more frequent updates but risks breaking stream into too small chunks
 
 # plot
 SIZE = 600
@@ -36,7 +36,7 @@ else:
     app.config.from_object('dev_configs')
 
 sio = None
-ser = None
+# ser = None
 
 
 def convert(st, dist):
@@ -47,7 +47,7 @@ def convert(st, dist):
     return result
 
 
-def make_plot(stream_name):
+def make_plot(data_url):
     def make_unit_poly_vertices(dist):
         x0, y0 = 0, 0
         theta = np.linspace(0, 2 * np.pi, NUM_STEPS + 1, endpoint=True)
@@ -99,10 +99,10 @@ def make_plot(stream_name):
                     color='#43ff00')
 
     # scatter
-    scatter_source = AjaxDataSource(data_url=request.url_root + stream_name,
+    scatter_source = AjaxDataSource(data_url=data_url,
                                     polling_interval=MS_PER_STEP,
                                     max_size=ROLLOVER,
-                                    mode='replace')  # TODO test replace
+                                    mode='replace')
     scatter_source.data = {'x': [],
                            'y': []}
     p.scatter(x='x',
@@ -126,17 +126,24 @@ def index():
 @app.route('/radar/<stream_name>')
 def radar(stream_name):
     global sio
-    global ser
+    # global ser
     # stream
     if stream_name == 'mock':
         stream = io.open('src/mock.txt', 'rb')
+        sio = io.TextIOWrapper(stream, line_buffering=True)
+        data_url = request.url_root + 'mock'
     elif stream_name == 'com3':
-        ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
-        ser.flushInput()
-        stream = io.BufferedRWPair(ser, ser)
-    sio = io.TextIOWrapper(stream, line_buffering=True)
+        # ser = serial.serial_for_url(SERIAL_URL, timeout=0, baudrate=BAUD_RATE)
+        # ser.flushInput()
+        # stream = io.BufferedRWPair(ser, ser)
+        data_url = '192.168.1.15:5000/com3'  # TODO use port-forwarding
+    else:
+        return 'Invalid stream_name'
     # plot
-    p = make_plot(stream_name)
+
+    print('data_url')
+    print(data_url)
+    p = make_plot(data_url)
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
     script, div = components(p, INLINE)
@@ -147,19 +154,19 @@ def radar(stream_name):
                            css_resources=css_resources)
 
 
-@app.route('/com3', methods=['POST'])
-def com3():
-    buffer_size = ser.inWaiting()
-    buffer = sio.read(buffer_size)
-    x = []
-    y = []
-    for line in buffer.split('\n'):
-        if len(line) == LINE_LENGTH:
-            step, distance = line.strip('\n').split()
-            xy = convert(float(step), float(distance))
-            x.append(xy[0])
-            y.append(xy[1])
-    return jsonify(x=x, y=y)
+# @app.route('/com3', methods=['POST'])
+# def com3():
+#     buffer_size = ser.inWaiting()
+#     buffer = sio.read(buffer_size)
+#     x = []
+#     y = []
+#     for line in buffer.split('\n'):
+#         if len(line) == LINE_LENGTH:
+#             step, distance = line.strip('\n').split()
+#             xy = convert(float(step), float(distance))
+#             x.append(xy[0])
+#             y.append(xy[1])
+#     return jsonify(x=x, y=y)
 
 
 @app.route('/mock', methods=['POST'])
@@ -173,4 +180,4 @@ def mock():
     return jsonify({'x': [x, x - 0.1], 'y': [y, y - 0.1]})  # multiple points work also
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=80, debug=False, host='192.168.1.15')
