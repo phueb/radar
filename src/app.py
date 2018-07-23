@@ -9,7 +9,7 @@ import requests
 
 
 SERIAL_URL = 'COM3'
-LOCAL_SERVICE_URL = ' https://arduinoradar.ngrok.io/'  # include trailing forward slash
+LOCAL_SERVICE_URL = 'https://arduinoradar.ngrok.io/'  # include trailing forward slash
 
 # data
 ROLLOVER = 6
@@ -109,10 +109,10 @@ def index():
     return render_template('index.html', autopilot_status='off')
 
 
-@app.route('/start_autopilot')
-def start_autopilot():
+@app.route('/start_autopilot/<duration>')
+def start_autopilot(duration):
     print('requesting autopilot to start...')
-    r = requests.post(LOCAL_SERVICE_URL + 'autopilot', data={'duration': 10})  # TODO test
+    r = requests.post(LOCAL_SERVICE_URL + 'autopilot', data={'duration': duration})  # TODO test
     print('sent request to ', r.url)
     return render_template('index.html', autopilot_status='started')
 

@@ -5,7 +5,7 @@ from collections import deque
 
 import numpy as np
 import serial
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
 from async import taskman
@@ -88,8 +88,11 @@ def index():
     return 'This is the source of serial data from an Arduino-powered ultrasound sensor'
 
 
-@app.route('/autopilot/<duration>', methods=['POST', 'GET'])  # TODO trigger via ajax and execute asynchronoulsy
-def autopilot(duration):
+@app.route('/autopilot', methods=['POST', 'GET'])  # TODO trigger via ajax and execute asynchronoulsy
+def autopilot():
+
+    # duration = request.args.get('duration')  # TODO test
+    duration = 10
     taskman.add_task(run_auto_pilot_loop, duration)
 
 
