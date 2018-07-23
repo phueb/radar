@@ -13,10 +13,12 @@
 
     <div>
         Select Data Source to turn on radar
-        <form action="{{ url_for('radar') }}">
+        <form action="{{ url_for('start_radar') }}">
             <input type="submit" value="Start Radar" />
         </form>
-        <form action="{{ url_for('autopilot', duration=10) }}">
+
+        Autopilot Status: {{ autopilot_status }}
+        <form action="{{ url_for('start_autopilot', duration=10) }}">
             <input type="submit" value="Start 10sec Autopilot" />
         </form>
 

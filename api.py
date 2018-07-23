@@ -1,12 +1,14 @@
-import numpy as np
 import io
-import serial
 import math
 import time
+from collections import deque
+
+import numpy as np
+import serial
 from flask import Flask, jsonify
 from flask_cors import CORS, cross_origin
-from collections import deque
-from src.async import taskman
+
+from async import taskman
 
 # ////////////////////////////////////////////////////////////// configs
 

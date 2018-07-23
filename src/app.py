@@ -1,12 +1,11 @@
 import numpy as np
 import os
-import io
-import math
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models.sources import AjaxDataSource, ColumnDataSource
 from bokeh.resources import INLINE
+import requests
 
 
 SERIAL_URL = 'COM3'
@@ -107,11 +106,19 @@ def make_plot(data_url):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', autopilot_status='off')
 
 
-@app.route('/radar')
-def radar():
+@app.route('/start_autopilot')
+def start_autopilot():
+    print('requesting autopilot to start...')
+    r = requests.post(LOCAL_SERVICE_URL + 'autopilot', data={'duration': 10})  # TODO test
+    print('sent request to ', r.url)
+    return render_template('index.html', autopilot_status='started')
+
+
+@app.route('/start_radar')
+def start_radar():
     data_url = LOCAL_SERVICE_URL + 'com3'
     p = make_plot(data_url)
     js_resources = INLINE.render_js()
