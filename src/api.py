@@ -25,8 +25,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/foo": {"origins": "http://localhost:port"}})
 
 
+@app.route('/')
+def index():
+    return 'This is the source of serial data from an Arduino-powered ultrasound sensor'
+
+
 @app.route('/com3', methods=['POST', 'GET'])
-@cross_origin(origin='localhost', headers=['Content- Type', 'Authorization'])
+@cross_origin(origin='*', headers=['Content- Type', 'Authorization'])  # TODO origin
 def com3():
     def convert(st, dist):
         deg = st / NUM_STEPS * 360
@@ -49,4 +54,4 @@ def com3():
     return jsonify(x=x, y=y)
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=False, host='192.168.1.15')
+    app.run(port=5000, debug=False)

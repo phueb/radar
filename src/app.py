@@ -10,8 +10,8 @@ from bokeh.models.sources import AjaxDataSource, ColumnDataSource
 from bokeh.resources import INLINE
 
 
-MOCK_DATA = True
 SERIAL_URL = 'COM3'
+LOCAL_SERVICE_URL = 'http://c0ba57f1.ngrok.io/'  # include trailing forward slash
 
 # data
 ROLLOVER = 6
@@ -130,7 +130,7 @@ def radar(stream_name):
         data_url = request.url_root + 'mock'
     elif stream_name == 'com3':
         # data_url = 'http://192.168.1.15:5000/com3'  # TODO use port-forwarding for heroku
-        data_url = 'https://neat-panda-85.localtunnel.me'  # TODO use port-forwarding for heroku
+        data_url = LOCAL_SERVICE_URL + 'com3'  # TODO use port-forwarding for heroku
     else:
         return 'Invalid stream_name'
     # plot
