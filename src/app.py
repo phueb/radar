@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import io
-import serial
 import math
 from flask import Flask, render_template, jsonify, request
 from bokeh.plotting import figure
@@ -11,7 +10,7 @@ from bokeh.resources import INLINE
 
 
 SERIAL_URL = 'COM3'
-LOCAL_SERVICE_URL = 'http://c0ba57f1.ngrok.io/'  # include trailing forward slash
+LOCAL_SERVICE_URL = ' http://arduinoradar.ngrok.io/'  # include trailing forward slash
 
 # data
 ROLLOVER = 6
@@ -20,7 +19,7 @@ BAUD_RATE = 9600
 DISTANCE_UNITS = 'cm'
 NUM_STEPS = 32
 SENSOR_RANGE = [0, 200]
-MS_PER_STEP = 300  # smaller-> more frequent updates but risks breaking stream into too small chunks
+MS_PER_STEP = 1000  # smaller-> more frequent updates but risks breaking stream into too small chunks
 
 # plot
 SIZE = 600
