@@ -110,17 +110,9 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/radar/<stream_name>')
-def radar(stream_name):
-    # data_url
-    if stream_name == 'mock':
-        data_url = request.url_root + 'mock'
-    elif stream_name == 'com3':
-        # data_url = 'http://192.168.1.15:5000/com3'  # TODO use port-forwarding for heroku
-        data_url = LOCAL_SERVICE_URL + 'com3'  # TODO use port-forwarding for heroku
-    else:
-        return 'Invalid stream_name'
-    # plot
+@app.route('/radar')
+def radar():
+    data_url = LOCAL_SERVICE_URL + 'com3'
     p = make_plot(data_url)
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
